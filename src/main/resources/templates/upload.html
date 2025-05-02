@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda de Espacios - Cargar Archivos</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>📅 Gestión de Agenda</h1>
+        <p>Cargue los archivos de configuración y peticiones</p>
+    </div>
+
+    <div th:if="${error}" class="error-message">
+        <p th:text="${error}"></p>
+    </div>
+
+    <form class="upload-form" action="/procesar" method="post" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="configFile">Archivo de Configuración</label>
+            <input type="file" class="file-input" name="configFile" id="configFile" required accept=".txt">
+            <small class="form-text">Formato esperado: config.txt</small>
+        </div>
+
+        <div class="form-group">
+            <label for="peticionesFile">Archivo de Peticiones</label>
+            <input type="file" class="file-input" name="peticionesFile" id="peticionesFile" required accept=".txt">
+            <small class="form-text">Formato esperado: peticiones.txt</small>
+        </div>
+
+        <button type="submit" class="btn-submit">Generar Agenda</button>
+    </form>
+</div>
+</body>
+</html>
