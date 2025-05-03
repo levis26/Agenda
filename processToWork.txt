@@ -1,0 +1,69 @@
+ Estructura de Ramas para el Desarrollo  
+
+
+Rama: feature/inputs  
+
+Objetivo: Gestionar la subida y validación de archivos de entrada.  
+Módulos/Componentes:  
+1. Formulario de subida de archivos (upload.html):  
+   - Diseño del formulario HTML con multipart/form-data.  
+   - Integración con Thymeleaf para renderizar la vista.  
+2. Controlador de subida (AgendaController.java):  
+   - Manejar la ruta /upload (GET) y /procesar (POST).  
+   - Usar @RequestParam("configFile") y @RequestParam("peticionesFile") para recibir archivos.  
+3. Lectura y validación de archivos:  
+   - Clase DataLoader.java:  
+     - Validar formato de config.txt (año, mes, idiomas).  
+     - Parsear peticiones.txt y detectar errores (fechas inválidas, horarios cruzados como 23-02).  
+   - Internacionalización:  
+     - Cargar archivos .properties (ej: internacional.CAT.properties).  
+
+
+
+
+
+
+Rama: feature/procedimiento  
+Objetivo: Procesar las peticiones, detectar conflictos y estructurar los datos para la agenda.  
+Módulos/Componentes:  
+1. Agrupación y priorización:  
+   - Clase AgendaProcessor.java:  
+     - Agrupar peticiones por sala (Sala1, Sala2, etc.).  
+     - Priorizar actividades "Tancat" (bloqueos) sobre otras reservas.  
+2. Detección de conflictos:  
+   - Algoritmo para comparar rangos de fechas/horas (ej: LocalDateTime).  
+   - Generar lista de incidencias (incidencies.log).  
+3. Modelo de datos:  
+   - Clase AgendaViewModel.java:  
+     - Estructurar datos en matrices por semana/día/hora.  
+     - Mapear colores según estado (libre, ocupado, bloqueado).  
+
+
+Rama: feature/outputs  
+Objetivo: Generar la salida HTML con la agenda visual y las incidencias.  
+Módulos/Componentes:  
+1. Plantilla Thymeleaf (agenda.html):  
+   - Tablas dinámicas por sala usando iteradores (th:each).  
+   - Sección de incidencias con lista de conflictos.  
+2. Estilos CSS:  
+   - Definir clases para colores:  
+     - .libre { background-color: DFFAC4 }  
+     - .ocupado { background-color: fbfccf }  
+     - .bloqueado { background-color: b2aaaa }  
+3. Integración con el controlador:  
+   - Pasar el AgendaViewModel a la vista mediante Model en Spring MVC.  
+
+
+
+ Flujo de Trabajo Recomendado  
+1. Iniciar con la rama feature/inputs:  
+   - Implementar formulario y validación básica.  
+   - Asegurar que los archivos se lean correctamente en memoria.  
+2. Continuar con feature/procedimiento:  
+   - Desarrollar lógica de agrupación y detección de conflictos.  
+   - Realizar pruebas unitarias con datos de ejemplo o postman.  
+3. Finalizar con feature/outputs:  
+   - Diseñar la plantilla HTML + CSS.  
+   - Vincular datos del AgendaViewModel a la vista.  
+
+       
