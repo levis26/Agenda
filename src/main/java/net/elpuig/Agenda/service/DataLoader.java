@@ -1,10 +1,15 @@
 package net.elpuig.Agenda.service;
 
+// DataLoader.java
+import org.springframework.stereotype.Service;
+import java.time.LocalDate;
+
 import java.io.InputStream;
 import java.time.Year;
 import java.time.YearMonth;
 import java.util.*;
 
+@Service
 public class DataLoader {
     @SuppressWarnings("unused")
     private YearMonth mesProcesar;  // Usado en módulos posteriores (feature/outputs)
@@ -68,9 +73,18 @@ public class DataLoader {
         String[] partes = linea.split(" ");
         if (partes.length < 6) throw new Exception("Formato de petición inválido: " + linea);
 
+        // Validar formato de fechas
         validarFecha(partes[2]); // FechaInicio
         validarFecha(partes[3]); // FechaFin
 
+        // Validar que FechaInicio <= FechaFin
+        LocalDate fechaInicio = parseFecha(partes[2]);
+        LocalDate fechaFin = parseFecha(partes[3]);
+        if (fechaInicio.isAfter(fechaFin)) {
+            throw new Exception("Fecha de inicio posterior a fecha fin: " + linea);
+        }
+
+        // Validar horarios
         String[] horarios = partes[5].split("_");
         for (String horario : horarios) {
             String[] horas = horario.split("-");
@@ -80,6 +94,18 @@ public class DataLoader {
             if (inicio >= fin || inicio < 0 || fin > 24) {
                 throw new Exception("Rango horario inválido: " + horario);
             }
+        }
+    }
+
+    private LocalDate parseFecha(String fechaStr) throws Exception {
+        try {
+            String[] partes = fechaStr.split("/");
+            int dia = Integer.parseInt(partes[0]);
+            int mes = Integer.parseInt(partes[1]);
+            int año = Integer.parseInt(partes[2]);
+            return LocalDate.of(año, mes, dia);
+        } catch (Exception e) {
+            throw new Exception("Error al parsear fecha: " + fechaStr);
         }
     }
 
