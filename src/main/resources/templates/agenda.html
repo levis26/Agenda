@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Agenda de Espacios</title>
+    <style>
+        /* Estilos CSS similares a Sala1.html (colores, bordes, etc.) */
+        .cerrado { background-color: #b2aaaa; }
+        .libre { background-color: #DFFAC4; }
+        .ocupado { background-color: #fbfccf; }
+    </style>
+</head>
+<body>
+<h1 th:text="'📅 Agenda - ' + ${mesProcesado}"></h1>
+
+<!-- Iterar por cada sala -->
+<div th:each="salaEntry : ${agenda}">
+    <h2 th:text="'Sala: ' + ${salaEntry.key}"></h2>
+
+    <!-- Tabla por semana -->
+    <table border="1">
+        <tr bgcolor="#D6E7FA">
+            <th>Hora</th>
+            <th th:each="dia : ${diasSemana}" th:text="${dia}"></th>
+        </tr>
+        <!-- Filas por horario -->
+        <tr th:each="hora : ${horarios}">
+            <td th:text="${hora}"></td>
+            <!-- Celdas por día -->
+            <td th:each="dia : ${diasSemana}"
+                th:classappend="${#maps.containsKey(agenda[salaEntry.key][dia], hora) ? 'ocupado' : 'libre'}"
+                th:text="${#maps.containsKey(agenda[salaEntry.key][dia], hora) ? agenda[salaEntry.key][dia][hora].actividad : 'Libre'}">
+            </td>
+        </tr>
+    </table>
+</div>
+
+<!-- Sección de incidencias -->
+<div th:if="${not incidencias.isEmpty()}">
+    <h3>⚠️ Incidencias</h3>
+    <ul>
+        <li th:each="incidencia : ${incidencias}" th:text="${incidencia}"></li>
+    </ul>
+</div>
+</body>
+</html>

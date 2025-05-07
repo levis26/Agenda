@@ -23,7 +23,7 @@ Módulos/Componentes:
 
 
 
-Rama: feature/procedimiento  
+Rama: feature/procedure
 Objetivo: Procesar las peticiones, detectar conflictos y estructurar los datos para la agenda.  
 Módulos/Componentes:  
 1. Agrupación y priorización:  
