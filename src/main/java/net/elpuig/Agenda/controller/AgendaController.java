@@ -1,5 +1,7 @@
 package net.elpuig.Agenda.controller;
 
+import net.elpuig.Agenda.model.Reserva;
+import net.elpuig.Agenda.service.AgendaProcessor;
 import net.elpuig.Agenda.service.DataLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -10,9 +12,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
-@Controller
+@Controller // Anotación crítica para que Spring detecte la clase
 public class AgendaController {
+
+    @Autowired
+    private AgendaProcessor agendaProcessor;
 
     @Autowired
     private DataLoader dataLoader;
