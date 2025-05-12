@@ -1,5 +1,12 @@
 package net.elpuig.Agenda.service;
 
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
+
+
 // DataLoader.java
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
@@ -11,6 +18,8 @@ import java.util.*;
 
 @Service
 public class DataLoader {
+    private static final Logger logger = LoggerFactory.getLogger(DataLoader.class);
+
     @SuppressWarnings("unused")
     private YearMonth mesProcesar;  // Usado en módulos posteriores (feature/outputs)
     private String idiomaEntrada;
@@ -30,7 +39,7 @@ public class DataLoader {
             if (fecha.length != 2) throw new Exception("Formato de fecha inválido");
             this.mesProcesar = YearMonth.of(Integer.parseInt(fecha[0]), Integer.parseInt(fecha[1]));
             configData.add(lineaFecha); // ✅
-
+            System.out.println(configData);
             // Línea 2: Idiomas
             String lineaIdiomas = scanner.nextLine();
             String[] idiomas = lineaIdiomas.split(" ");
@@ -38,6 +47,8 @@ public class DataLoader {
             this.idiomaEntrada = idiomas[0];
             this.idiomaSalida = idiomas[1];
             configData.add(lineaIdiomas); // ✅
+            logger.info("Contenido de configData: {}", configData);
+            System.out.println(configData);
 
             cargarTraducciones(idiomaEntrada);
         }
