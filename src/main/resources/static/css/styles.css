@@ -97,6 +97,10 @@ body {
     margin-bottom: 1.5rem;
 }
 
+.cerrado { background-color: #b2aaaa; }
+.libre { background-color: #DFFAC4; }
+.ocupado { background-color: #fbfccf; }
+
 /* Efectos responsivos */
 @media (max-width: 768px) {
     .container {
