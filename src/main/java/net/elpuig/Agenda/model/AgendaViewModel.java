@@ -73,4 +73,14 @@ public class AgendaViewModel {
     public List<String> getIncidencias() {
         return incidencias;
     }
+
+    public Set<String> getHorariosUnicos() {
+        Set<String> horarios = new HashSet<>();
+        agendaPorSala.values().forEach(fechas -> 
+            fechas.values().forEach(horariosMap -> 
+                horarios.addAll(horariosMap.keySet())
+            )
+        );
+        return horarios;
+    }
 }

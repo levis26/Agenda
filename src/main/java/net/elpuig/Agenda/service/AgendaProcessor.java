@@ -3,13 +3,13 @@ package net.elpuig.Agenda.service;
 import net.elpuig.Agenda.model.Reserva;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.*;
 
 @Service
 public class AgendaProcessor {
     private List<Reserva> reservasValidas = new ArrayList<>();
     private List<String> incidencias = new ArrayList<>();
+    private Map<String, List<Reserva>> agendaCache;
 
     public void procesarReservas(List<Reserva> reservas) {
         reservasValidas.clear();
@@ -57,8 +57,6 @@ public class AgendaProcessor {
     public List<String> getIncidencias() {
         return incidencias;
     }
-
-    private Map<String, List<Reserva>> agendaCache;
 
     public Map<String, List<Reserva>> getAgenda() {
         if (agendaCache == null) {

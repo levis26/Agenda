@@ -9,28 +9,19 @@
 <div class="container">
     <h1 th:text="'📅 Agenda - ' + ${agendaViewModel.mesNombre} + ' ' + ${agendaViewModel.anyo}"></h1>
 
-    <!-- Iterar por cada sala -->
-    <div th:each="salaEntry : ${agendaViewModel.agendaPorSala}">
-        <h2 th:text="'Sala: ' + ${salaEntry.key}"></h2>
-
-        <!-- Tabla por semana -->
-        <table class="agenda-table" th:each="semana : ${agendaViewModel.semanas}">
-            <tr class="header-week">
-                <th>Hora</th>
-                <th th:each="dia : ${agendaViewModel.diasSemana}"
-                    th:text="${agendaViewModel.traducirDia(dia)}"></th>
-            </tr>
-            <!-- Filas por horario -->
-            <tr th:each="hora : ${agendaViewModel.horarios}">
-                <td class="hora" th:text="${hora}"></td>
-                <!-- Celdas por día -->
-                <td th:each="dia : ${agendaViewModel.diasSemana}"
-                    th:classappend="${agendaViewModel.getEstado(salaEntry.key, semana, dia, hora)}"
-                    th:text="${agendaViewModel.getActividad(salaEntry.key, semana, dia, hora)}">
-                </td>
-            </tr>
-        </table>
-    </div>
+    <!-- Iterar sobre las salas, fechas y horarios almacenados en agendaPorSala -->
+    <table th:each="salaEntry : ${agendaViewModel.agendaPorSala}">
+        <tr>
+            <th th:text="${salaEntry.key}"></th> <!-- Nombre de la sala -->
+        </tr>
+        <tr th:each="fechaEntry : ${salaEntry.value}">
+            <td th:text="${fechaEntry.key}"></td> <!-- Fecha -->
+            <td th:each="horarioEntry : ${fechaEntry.value}">
+                <span th:text="${horarioEntry.key}"></span> <!-- Horario -->
+                <span th:text="${horarioEntry.value}"></span> <!-- Actividad -->
+            </td>
+        </tr>
+    </table>
 
     <!-- Sección de incidencias -->
     <div th:if="${not agendaViewModel.incidencias.isEmpty()}" class="incidencias">
