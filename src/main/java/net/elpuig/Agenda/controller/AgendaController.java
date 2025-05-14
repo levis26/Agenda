@@ -1,5 +1,6 @@
 package net.elpuig.Agenda.controller;
 
+import net.elpuig.Agenda.model.AgendaViewModel;
 import net.elpuig.Agenda.model.Reserva;
 import net.elpuig.Agenda.service.AgendaProcessor;
 import net.elpuig.Agenda.service.DataLoader;
@@ -8,54 +9,84 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 
-@Controller // Anotación crítica para que Spring detecte la clase
+@Controller
 public class AgendaController {
 
     @Autowired
-    private AgendaProcessor agendaProcessor;
+    private AgendaProcessor agendaProcessor; // Inyectado por Spring (debe ser @Service)
 
     @Autowired
-    private DataLoader dataLoader;
+    private DataLoader dataLoader; // Inyectado por Spring (debe ser @Service)
 
+    // --- Métodos del controlador ---
     @GetMapping("/upload")
     public String mostrarFormulario() {
-        return "upload"; // Renderiza upload.html
+        return "upload"; // Invocado al acceder a /upload (GET)
     }
 
     @PostMapping("/procesar")
     public String procesarArchivos(
             @RequestParam("configFile") MultipartFile configFile,
             @RequestParam("peticionesFile") MultipartFile peticionesFile,
-            Model model) {
+            RedirectAttributes redirectAttributes) { // Invocado al enviar el formulario (POST)
 
         try {
-            // Validar y procesar archivos (lógica en DataLoader)
-            //DataLoader dataLoader = new DataLoader();
             dataLoader.validarConfig(configFile.getInputStream());
             dataLoader.validarPeticiones(peticionesFile.getInputStream());
+            agendaProcessor.procesarReservas(dataLoader.getReservas());
 
-            // Redirigir a la vista de agenda (se implementará en feature/outputs)
+            // Construir y poblar AgendaViewModel
+            AgendaViewModel agendaViewModel = construirAgendaViewModel();
+            redirectAttributes.addFlashAttribute("agendaViewModel", agendaViewModel);
             return "redirect:/agenda";
+
         } catch (Exception e) {
-            model.addAttribute("error", e.getMessage());
-            return "upload"; // Mostrar error en el formulario
+            redirectAttributes.addFlashAttribute("error", "Error: " + e.getMessage());
+            return "redirect:/upload";
         }
     }
 
     @GetMapping("/agenda")
-    public String mostrarAgenda(Model model) {
-        // Obtener datos procesados (ejemplo simplificado)
-        Map<String, List<Reserva>> agendaPorSala = agendaProcessor.getAgenda();
-        List<String> incidencias = agendaProcessor.getIncidencias();
+    public String mostrarAgenda(@ModelAttribute("agendaViewModel") AgendaViewModel agendaViewModel, Model model) {
+        model.addAttribute("agendaViewModel", agendaViewModel);
+        return "agenda"; // Invocado al redirigir a /agenda (GET)
+    }
 
-        model.addAttribute("agenda", agendaPorSala);
-        model.addAttribute("incidencias", incidencias);
-        return "agenda";
+    // --- Método auxiliar ---
+    private AgendaViewModel construirAgendaViewModel() {
+        AgendaViewModel viewModel = new AgendaViewModel(
+                dataLoader.getMesProcesar(),
+                dataLoader.getTraducciones()
+        );
+
+        for (Reserva reserva : agendaProcessor.getReservasValidas()) {
+            LocalDate fechaActual = reserva.getFechaInicio();
+            while (!fechaActual.isAfter(reserva.getFechaFin())) {
+                String[] horas = reserva.getHorarios().split("_");
+                for (String horario : horas) {
+                    String[] partes = horario.split("-");
+                    String horaInicio = partes[0] + ":00";
+                    String horaFin = partes[1] + ":00";
+                    viewModel.addReserva(
+                            reserva.getSala(),
+                            fechaActual,
+                            horaInicio + "-" + horaFin,
+                            reserva.getNombreActividad()
+                    );
+                }
+                fechaActual = fechaActual.plusDays(1);
+            }
+        }
+
+        agendaProcessor.getIncidencias().forEach(viewModel::addIncidencia);
+        return viewModel;
     }
 }
