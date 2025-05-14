@@ -101,6 +101,45 @@ body {
 .libre { background-color: #DFFAC4; }
 .ocupado { background-color: #fbfccf; }
 
+/* src/main/resources/static/css/styles.css */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.agenda-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+}
+
+.agenda-table th, .agenda-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+}
+
+.header-week {
+    background-color: #D6E7FA;
+}
+
+.hora {
+    background-color: #E8F1FE;
+    font-size: 0.9em;
+}
+
+.libre { background-color: #DFFAC4; }
+.ocupado { background-color: #fbfccf; }
+.bloqueado { background-color: #b2aaaa; }
+
+.incidencias {
+    margin-top: 30px;
+    padding: 15px;
+    background-color: #fff3cd;
+    border-radius: 5px;
+}
+
 /* Efectos responsivos */
 @media (max-width: 768px) {
     .container {
