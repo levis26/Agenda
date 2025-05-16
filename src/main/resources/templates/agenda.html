@@ -9,19 +9,34 @@
 <div class="container">
     <h1 th:text="'📅 Agenda - ' + ${agendaViewModel.mesNombre} + ' ' + ${agendaViewModel.anyo}"></h1>
 
-    <!-- Iterar sobre las salas, fechas y horarios almacenados en agendaPorSala -->
-    <table th:each="salaEntry : ${agendaViewModel.agendaPorSala}">
-        <tr>
-            <th th:text="${salaEntry.key}"></th> <!-- Nombre de la sala -->
-        </tr>
-        <tr th:each="fechaEntry : ${salaEntry.value}">
-            <td th:text="${fechaEntry.key}"></td> <!-- Fecha -->
-            <td th:each="horarioEntry : ${fechaEntry.value}">
-                <span th:text="${horarioEntry.key}"></span> <!-- Horario -->
-                <span th:text="${horarioEntry.value}"></span> <!-- Actividad -->
-            </td>
-        </tr>
-    </table>
+    <!-- Iterar por cada sala -->
+    <div th:each="salaEntry : ${agendaViewModel.agendaPorSala}">
+        <h2 th:text="${salaEntry.key}"></h2> <!-- Nombre de la sala -->
+        
+        <!-- Tabla por semana -->
+        <table class="agenda-table" th:each="semana : ${agendaViewModel.semanas}">
+            <thead>
+                <tr>
+                    <th>Horario</th>
+                    <th th:each="diaSemana : ${semana}" 
+                        th:text="${agendaViewModel.traducirDia(agendaViewModel.getDiasSemana().get(diaSemana.getDayOfWeek().getValue() - 1))}">
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Iterar por cada horario único -->
+                <tr th:each="horario : ${agendaViewModel.horariosUnicos}">
+                    <td th:text="${horario}"></td> <!-- Horario -->
+                    
+                    <!-- Celda por día de la semana -->
+                    <td th:each="dia : ${semana}" 
+                        th:classappend="${agendaViewModel.getEstado(salaEntry.key, dia, horario)}" 
+                        th:text="${agendaViewModel.agendaPorSala.get(salaEntry.key).get(dia)?.get(horario)}">
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
     <!-- Sección de incidencias -->
     <div th:if="${not agendaViewModel.incidencias.isEmpty()}" class="incidencias">
