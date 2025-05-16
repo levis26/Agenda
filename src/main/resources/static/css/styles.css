@@ -140,6 +140,26 @@ body {
     border-radius: 5px;
 }
 
+.agenda-table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 2rem;
+}
+
+.agenda-table td, .agenda-table th {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+}
+
+.ocupado {
+    background-color: #ffb3b3;
+}
+
+.libre {
+    background-color: #b3ffb3;
+}
+
 /* Efectos responsivos */
 @media (max-width: 768px) {
     .container {

@@ -62,7 +62,11 @@ public class AgendaViewModel {
     }
 
     public String getEstado(String sala, LocalDate fecha, String hora) {
-        return agendaPorSala.get(sala).get(fecha).get(hora) != null ? "ocupado" : "libre";
+        Map<LocalDate, Map<String, String>> fechas = agendaPorSala.get(sala);
+        if (fechas == null) return "libre";
+        
+        Map<String, String> horarios = fechas.get(fecha);
+        return (horarios != null && horarios.containsKey(hora)) ? "ocupado" : "libre";
     }
 
     // Getters estándar
@@ -74,13 +78,12 @@ public class AgendaViewModel {
         return incidencias;
     }
 
-    public Set<String> getHorariosUnicos() {
-        Set<String> horarios = new HashSet<>();
-        agendaPorSala.values().forEach(fechas -> 
-            fechas.values().forEach(horariosMap -> 
-                horarios.addAll(horariosMap.keySet())
-            )
-        );
-        return horarios;
+    public List<String> getHorariosUnicos() {
+        return agendaPorSala.values().stream()
+                .flatMap(fechas -> fechas.values().stream())
+                .flatMap(horarios -> horarios.keySet().stream())
+                .distinct()
+                .sorted()
+                .collect(Collectors.toList());
     }
 }
