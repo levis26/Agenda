@@ -171,3 +171,104 @@ body {
         font-size: 2rem;
     }
 }
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1, h2, h3 {
+    color: #0056b3;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Estilos de la tabla general */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+thead th {
+    background-color: #e9ecef;
+    color: #333;
+    font-weight: bold;
+}
+
+/* Estilos para las celdas de actividad */
+.celda-tancada {
+    background-color: #808080; /* Gris para "Tancat" */
+    color: white;
+    font-weight: bold;
+}
+
+.celda-ocupada {
+    background-color: #d1ecf1; /* Azul claro para actividades ocupadas */
+    color: #0c5460;
+}
+
+.celda-libre {
+    background-color: #f8f9fa; /* Blanco/gris muy claro para celdas libres */
+    color: #6c757d;
+}
+
+/* Estilo para días fuera del mes actual */
+.dia-fuera-mes {
+    background-color: #f0f0f0; /* Un gris muy claro para los días de meses adyacentes */
+    color: #999;
+}
+
+/* Estilos para incidencias */
+.incidencias {
+    background-color: #ffe5e5;
+    border: 1px solid #ffcccc;
+    padding: 15px;
+    margin-top: 20px;
+    border-radius: 5px;
+}
+
+.incidencias h3 {
+    color: #cc0000;
+    margin-top: 0;
+}
+
+.incidencias ul {
+    list-style-type: disc;
+    margin-left: 20px;
+    padding: 0;
+}
+
+.incidencias li {
+    color: #8a0000;
+    margin-bottom: 5px;
+}
+
+.error-message {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+hr {
+    border: 0;
+    height: 1px;
+    background-color: #ccc;
+    margin: 30px 0;
+}

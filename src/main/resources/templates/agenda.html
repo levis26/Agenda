@@ -9,36 +9,38 @@
 <div class="container">
     <h1 th:text="'📅 Agenda - ' + ${agendaViewModel.mesNombre} + ' ' + ${agendaViewModel.anyo}"></h1>
 
-    <!-- Iterar por cada sala -->
-    <div th:each="salaEntry : ${agendaViewModel.agendaPorSala}">
-        <h2 th:text="${salaEntry.key}"></h2> <!-- Nombre de la sala -->
-        
-        <!-- Tabla por semana -->
-        <table class="agenda-table" th:each="semana : ${agendaViewModel.semanas}">
-            <thead>
-                <tr>
-                    <th>Horario</th>
-                    <th th:each="diaSemana : ${semana}" 
-                        th:text="${agendaViewModel.traducirDia(agendaViewModel.getDiasSemana().get(diaSemana.getDayOfWeek().getValue() - 1))}">
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Iterar por cada horario único -->
-                <tr th:each="horario : ${agendaViewModel.horariosUnicos}">
-                    <td th:text="${horario}"></td> <!-- Horario -->
-                    
-                    <!-- Celda por día de la semana -->
-                    <td th:each="dia : ${semana}" 
-                        th:classappend="${agendaViewModel.getEstado(salaEntry.key, dia, horario)}" 
-                        th:text="${agendaViewModel.agendaPorSala.get(salaEntry.key).get(dia)?.get(horario)}">
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+    <div th:if="${error}" class="incidencias error-message">
+        <p th:text="${error}"></p>
     </div>
 
-    <!-- Sección de incidencias -->
+    <div th:each="salaName : ${agendaViewModel.getAgendaPorSala().keySet()}" class="sala-section">
+        <h2 th:text="${salaName}"></h2> <div th:each="semana : ${agendaViewModel.getSemanas()}" class="week-section">
+        <h3>Semana del <span th:text="${#temporals.format(semana.get(0), 'dd/MM/yyyy')}"></span></h3>
+
+        <table>
+            <thead>
+            <tr>
+                <th>Hora</th> <th th:each="dia : ${semana}"
+                                  th:class="${dia.getMonth() != agendaViewModel.getMesProcesar().getMonth() ? 'dia-fuera-mes' : ''}">
+                <span th:text="${dia.getDayOfMonth()}"></span><br/>
+                <span th:text="${agendaViewModel.getDiaInicialTraducido(dia)}"></span>
+            </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="horario : ${agendaViewModel.getHorariosUnicos()}">
+                <td th:text="${horario}"></td> <td th:each="dia : ${semana}">
+                <div th:with="actividad=${agendaViewModel.getActividadEnCelda(salaName, dia, horario)}"
+                     th:class="${actividad == 'Tancat' ? 'celda-tancada' : (actividad != null ? 'celda-ocupada' : 'celda-libre')}">
+                    <span th:text="${actividad != null ? actividad : ''}"></span>
+                </div>
+            </td>
+            </tr>
+            </tbody>
+        </table>
+        <hr/> </div>
+        <hr/> </div>
+
     <div th:if="${not agendaViewModel.incidencias.isEmpty()}" class="incidencias">
         <h3>⚠️ Incidencias Detectadas</h3>
         <ul>
@@ -46,6 +48,7 @@
                 th:text="${incidencia}"></li>
         </ul>
     </div>
+
 </div>
 </body>
 </html>

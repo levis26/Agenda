@@ -1,4 +1,4 @@
- Estructura de Ramas para el Desarrollo  
+Estructura de Ramas para el Desarrollo
 
 
 Rama: feature/inputs  

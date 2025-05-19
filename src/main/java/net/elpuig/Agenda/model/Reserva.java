@@ -7,8 +7,8 @@ public class Reserva {
     private String sala;
     private LocalDate fechaInicio;
     private LocalDate fechaFin;
-    private String diasSemana;
-    private String horarios;
+    private String diasSemana; // Máscara de días (ej. LMCJVSG)
+    private String horarios;     // Máscara de horarios (ej. 0800-1000_1900-2100)
 
     // Constructor
     public Reserva(String nombreActividad, String sala, LocalDate fechaInicio, LocalDate fechaFin, String diasSemana, String horarios) {
@@ -20,7 +20,7 @@ public class Reserva {
         this.horarios = horarios;
     }
 
-    // Getters y Setters
+    // Getters (necesarios para acceder a los datos de la reserva)
     public String getNombreActividad() {
         return nombreActividad;
     }
@@ -45,7 +45,7 @@ public class Reserva {
         return horarios;
     }
 
-    // Setters (si son necesarios)
+    // Setters (pueden ser útiles, aunque el constructor ya inicializa todo)
     public void setNombreActividad(String nombreActividad) {
         this.nombreActividad = nombreActividad;
     }
@@ -68,5 +68,17 @@ public class Reserva {
 
     public void setHorarios(String horarios) {
         this.horarios = horarios;
+    }
+
+    @Override
+    public String toString() {
+        return "Reserva{" +
+                "nombreActividad='" + nombreActividad + '\'' +
+                ", sala='" + sala + '\'' +
+                ", fechaInicio=" + fechaInicio +
+                ", fechaFin=" + fechaFin +
+                ", diasSemana='" + diasSemana + '\'' +
+                ", horarios='" + horarios + '\'' +
+                '}';
     }
 }
