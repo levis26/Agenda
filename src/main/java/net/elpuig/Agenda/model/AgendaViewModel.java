@@ -5,8 +5,6 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.temporal.WeekFields;
 import java.util.*;
-// import java.time.format.DateTimeFormatter; // REMOVE THIS LINE
-// import java.util.stream.Collectors; // REMOVE THIS LINE
 
 public class AgendaViewModel {
     private Map<String, Map<LocalDate, Map<String, String>>> agendaPorSala;
@@ -31,13 +29,14 @@ public class AgendaViewModel {
     public void addIncidencia(String incidencia) {
         incidencias.add(incidencia);
     }
-
+    public YearMonth getMesProcesar() {
+        return mesProcesar;
+    }
     // Getters para Thymeleaf
     public String getMesNombre() {
         if (mesProcesar == null) {
             return "Mes no especificado";
         }
-        // Use getOrDefault to prevent NullPointerException if key is missing
         return traducciones.getOrDefault("month." + mesProcesar.getMonthValue(), "Unknown Month");
     }
 
@@ -50,14 +49,13 @@ public class AgendaViewModel {
         LocalDate fechaInicioMes = mesProcesar.atDay(1);
         LocalDate fechaFinMes = mesProcesar.atEndOfMonth();
 
-        LocalDate currentWeekStart = fechaInicioMes.with(DayOfWeek.MONDAY); // Start week on Monday
+        LocalDate currentWeekStart = fechaInicioMes.with(DayOfWeek.MONDAY);
 
-        // Adjust if month starts after currentWeekStart (e.g., month starts on Wednesday, but currentWeekStart is Monday of previous week)
         if (currentWeekStart.isAfter(fechaInicioMes)) {
             currentWeekStart = currentWeekStart.minusWeeks(1);
         }
 
-        while (!currentWeekStart.isAfter(fechaFinMes)) { // Iterate until past the end of the month
+        while (!currentWeekStart.isAfter(fechaFinMes)) {
             List<LocalDate> semanaActual = new ArrayList<>();
             for (int i = 0; i < 7; i++) {
                 LocalDate dia = currentWeekStart.plusDays(i);
@@ -73,11 +71,12 @@ public class AgendaViewModel {
         return Arrays.asList("L", "M", "C", "J", "V", "S", "G"); // 'G' for Sunday
     }
 
+
     public String traducirDia(String diaAbr) {
-        // Use getOrDefault to prevent NullPointerException if key is missing
         return traducciones.getOrDefault("day." + diaAbr, diaAbr);
     }
 
+    // MODIFICACIÓN CLAVE: Este método ahora identifica "cerrado" usando la traducción
     public String getEstado(String sala, LocalDate fecha, String hora) {
         Map<LocalDate, Map<String, String>> fechas = agendaPorSala.get(sala);
         if (fechas == null) return "libre";
@@ -85,8 +84,8 @@ public class AgendaViewModel {
         Map<String, String> horarios = fechas.get(fecha);
         if (horarios != null && horarios.containsKey(hora)) {
             String actividad = horarios.get(hora);
-            // Check if it's a "Cerrado" activity
-            if (actividad != null && (actividad.equalsIgnoreCase(traducciones.getOrDefault("closed.activity", "Tancat")) || actividad.equalsIgnoreCase(traducciones.getOrDefault("closed.activity", "Cerrado")))) {
+            // Compara la actividad con la traducción de "Tancat" (o "Cerrado")
+            if (actividad != null && actividad.equalsIgnoreCase(traducciones.getOrDefault("activity.closed", "Tancat"))) { // Usar una clave más genérica como "activity.closed"
                 return "cerrado";
             }
             return "ocupado";

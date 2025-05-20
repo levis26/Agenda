@@ -127,7 +127,8 @@ public class AgendaController {
                             int finHora = Integer.parseInt(partesHorario[1]);
 
                             for (int h = inicioHora; h < finHora; h++) {
-                                String slot = String.format("%02d:00-%02d:00", h, h + 1);
+                                // MODIFICACIÓN: Ajustar el formato de la hora final a 00 si es 24
+                                String slot = String.format("%02d:00-%02d:00", h, (h + 1) == 24 ? 0 : h + 1);
                                 viewModel.addReserva(reserva.getSala(), fecha, slot, reserva.getNombreActividad());
                             }
                         } catch (NumberFormatException e) {

@@ -10,22 +10,25 @@
     <h1 th:text="'📅 Agenda - ' + ${agendaViewModel.mesNombre} + ' ' + ${agendaViewModel.anyo}"></h1>
 
     <div th:each="salaEntry : ${agendaViewModel.agendaPorSala}">
-        <h2 th:text="${salaEntry.key}"></h2> <div th:each="semana : ${agendaViewModel.semanas}">
+        <h2 th:text="${salaEntry.key}"></h2>
+        <div th:each="semana : ${agendaViewModel.semanas}">
             <table class="agenda-table">
                 <thead>
                 <tr>
                     <th th:text="'Semana ' + ${agendaViewModel.getNumeroSemana(semana[0])}"></th>
                     <th th:each="dia : ${semana}"
-                        th:text="${dia.getDayOfMonth()} + ' (' + ${#strings.substring(agendaViewModel.traducirDia(agendaViewModel.getDiasSemana().get(dia.getDayOfWeek().getValue() - 1)), 0, 3)} + ')'">
+                        th:text="${dia.getDayOfMonth()} + ' (' + ${#strings.substring(agendaViewModel.traducirDia(agendaViewModel.getDiasSemana().get(dia.getDayOfWeek().getValue() - 1)), 0, 3)} + ')'"
+                        th:classappend="${dia.getMonthValue() != agendaViewModel.mesProcesar.getMonthValue() || dia.getYear() != agendaViewModel.mesProcesar.getYear() ? 'otro-mes' : ''}">
                     </th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:each="hora : ${#numbers.sequence(0, 23)}">
-                    <td th:text="${hora < 23 ? T(java.lang.String).format('%02d', hora) + ':00-' + T(java.lang.String).format('%02d', hora + 1) + ':00' : '23:00-00:00'}"></td>
+                    <td th:text="${hora < 24 ? T(java.lang.String).format('%02d', hora) + ':00-' + T(java.lang.String).format('%02d', hora + 1) + ':00' : '23:00-00:00'}"></td>
                     <td th:each="dia : ${semana}"
-                        th:classappend="${agendaViewModel.getEstado(salaEntry.key, dia, T(java.lang.String).format('%02d:00-%02d:00', hora, (hora + 1) == 24 ? 0 : hora + 1))} ? 'ocupado' : 'libre'"
-                        th:text="${agendaViewModel.agendaPorSala.get(salaEntry.key).get(dia)?.get(T(java.lang.String).format('%02d:00-%02d:00', hora, (hora + 1) == 24 ? 0 : hora + 1))}">
+                        th:with="slotHora=${T(java.lang.String).format('%02d:00-%02d:00', hora, (hora + 1) % 24)}"
+                        th:classappend="${agendaViewModel.getEstado(salaEntry.key, dia, slotHora)}"
+                        th:text="${agendaViewModel.getActividad(salaEntry.key, dia, slotHora)}">
                     </td>
                 </tr>
                 </tbody>
