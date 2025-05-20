@@ -9,41 +9,34 @@
 <div class="container">
     <h1 th:text="'📅 Agenda - ' + ${agendaViewModel.mesNombre} + ' ' + ${agendaViewModel.anyo}"></h1>
 
-    <!-- Iterar por cada sala -->
     <div th:each="salaEntry : ${agendaViewModel.agendaPorSala}">
-        <h2 th:text="${salaEntry.key}"></h2> <!-- Nombre de la sala -->
-        
-        <!-- Tabla por semana -->
-        <table class="agenda-table" th:each="semana : ${agendaViewModel.semanas}">
-            <thead>
+        <h2 th:text="${salaEntry.key}"></h2> <div th:each="semana : ${agendaViewModel.semanas}">
+            <table class="agenda-table">
+                <thead>
                 <tr>
-                    <th>Horario</th>
-                    <th th:each="diaSemana : ${semana}" 
-                        th:text="${agendaViewModel.traducirDia(agendaViewModel.getDiasSemana().get(diaSemana.getDayOfWeek().getValue() - 1))}">
+                    <th th:text="'Semana ' + ${agendaViewModel.getNumeroSemana(semana[0])}"></th>
+                    <th th:each="dia : ${semana}"
+                        th:text="${dia.getDayOfMonth()} + ' (' + ${#strings.substring(agendaViewModel.traducirDia(agendaViewModel.getDiasSemana().get(dia.getDayOfWeek().getValue() - 1)), 0, 3)} + ')'">
                     </th>
                 </tr>
-            </thead>
-            <tbody>
-                <!-- Iterar por cada horario único -->
-                <tr th:each="horario : ${agendaViewModel.horariosUnicos}">
-                    <td th:text="${horario}"></td> <!-- Horario -->
-                    
-                    <!-- Celda por día de la semana -->
-                    <td th:each="dia : ${semana}" 
-                        th:classappend="${agendaViewModel.getEstado(salaEntry.key, dia, horario)}" 
-                        th:text="${agendaViewModel.agendaPorSala.get(salaEntry.key).get(dia)?.get(horario)}">
+                </thead>
+                <tbody>
+                <tr th:each="hora : ${#numbers.sequence(0, 23)}">
+                    <td th:text="${hora < 23 ? T(java.lang.String).format('%02d', hora) + ':00-' + T(java.lang.String).format('%02d', hora + 1) + ':00' : '23:00-00:00'}"></td>
+                    <td th:each="dia : ${semana}"
+                        th:classappend="${agendaViewModel.getEstado(salaEntry.key, dia, T(java.lang.String).format('%02d:00-%02d:00', hora, (hora + 1) == 24 ? 0 : hora + 1))} ? 'ocupado' : 'libre'"
+                        th:text="${agendaViewModel.agendaPorSala.get(salaEntry.key).get(dia)?.get(T(java.lang.String).format('%02d:00-%02d:00', hora, (hora + 1) == 24 ? 0 : hora + 1))}">
                     </td>
                 </tr>
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
     </div>
 
-    <!-- Sección de incidencias -->
-    <div th:if="${not agendaViewModel.incidencias.isEmpty()}" class="incidencias">
-        <h3>⚠️ Incidencias Detectadas</h3>
+    <div th:if="${agendaViewModel.incidencias.size() > 0}" class="incidences-section">
+        <h3>Incidencias Detectadas:</h3>
         <ul>
-            <li th:each="incidencia : ${agendaViewModel.incidencias}"
-                th:text="${incidencia}"></li>
+            <li th:each="incidencia : ${agendaViewModel.incidencias}" th:text="${incidencia}"></li>
         </ul>
     </div>
 </div>

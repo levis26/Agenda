@@ -15,15 +15,17 @@ body {
     margin: 0;
     padding: 2rem;
     min-height: 100vh;
+    color: var(--text-color);
 }
 
 .container {
-    max-width: 800px;
+    max-width: 1200px;
     margin: 0 auto;
     background: white;
     padding: 2.5rem;
     border-radius: 12px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem; /* Add some space at the bottom */
 }
 
 .header {
@@ -46,41 +48,41 @@ body {
 .form-group {
     display: flex;
     flex-direction: column;
-    gap: 0.8rem;
+    gap: 0.5rem;
 }
 
-.form-group label {
-    font-weight: 600;
+label {
+    font-weight: bold;
     color: var(--primary-color);
-    font-size: 1.1rem;
 }
 
 .file-input {
-    padding: 0.8rem;
-    border: 2px solid #ddd;
-    border-radius: 6px;
-    font-size: 1rem;
+    padding: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f0f0f0;
+    cursor: pointer;
     transition: border-color 0.3s ease;
 }
 
-.file-input:focus {
-    outline: none;
+.file-input:hover {
     border-color: var(--secondary-color);
-    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+}
+
+.form-text {
+    font-size: 0.85rem;
+    color: #666;
 }
 
 .btn-submit {
+    padding: 1rem 1.5rem;
     background-color: var(--secondary-color);
     color: white;
-    padding: 1rem 2rem;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     font-size: 1.1rem;
     cursor: pointer;
-    transition: transform 0.2s, background-color 0.3s;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    align-self: flex-start;
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .btn-submit:hover {
@@ -97,77 +99,125 @@ body {
     margin-bottom: 1.5rem;
 }
 
-.cerrado { background-color: #b2aaaa; }
-.libre { background-color: #DFFAC4; }
-.ocupado { background-color: #fbfccf; }
-
-/* src/main/resources/static/css/styles.css */
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
+/* Agenda specific styles */
+h2 {
+    color: var(--primary-color);
+    margin-top: 2.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 0.5rem;
 }
 
 .agenda-table {
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 30px;
+    font-size: 0.9em;
 }
 
 .agenda-table th, .agenda-table td {
     border: 1px solid #ddd;
     padding: 8px;
     text-align: center;
+    white-space: nowrap; /* Prevent text wrapping in cells */
+    overflow: hidden; /* Hide overflow */
+    text-overflow: ellipsis; /* Add ellipsis for overflowed text */
 }
 
-.header-week {
-    background-color: #D6E7FA;
+.agenda-table thead th {
+    background-color: #D6E7FA; /* Light blue header */
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.agenda-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9; /* Zebra striping for rows */
 }
 
 .hora {
-    background-color: #E8F1FE;
-    font-size: 0.9em;
+    background-color: #E8F1FE; /* Slightly different blue for hour column */
+    font-weight: bold;
 }
 
-.libre { background-color: #DFFAC4; }
-.ocupado { background-color: #fbfccf; }
-.bloqueado { background-color: #b2aaaa; }
-
-.incidencias {
-    margin-top: 30px;
-    padding: 15px;
-    background-color: #fff3cd;
-    border-radius: 5px;
-}
-
-.agenda-table {
-    border-collapse: collapse;
-    width: 100%;
-    margin-bottom: 2rem;
-}
-
-.agenda-table td, .agenda-table th {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: center;
-}
-
-.ocupado {
-    background-color: #ffb3b3;
-}
-
+/* Status colors */
 .libre {
-    background-color: #b3ffb3;
+    background-color: #DFFAC4; /* Light green */
+}
+.ocupado {
+    background-color: #fbfccf; /* Light yellow */
+}
+.cerrado {
+    background-color: #b2aaaa; /* Grey/brownish for closed/blocked */
 }
 
-/* Efectos responsivos */
-@media (max-width: 768px) {
-    .container {
-        padding: 1.5rem;
-        margin: 1rem;
-    }
+/* Incidencias section */
+.incidencias-section {
+    margin-top: 3rem;
+    padding: 1.5rem;
+    background-color: #fff3cd; /* Light orange background */
+    border: 1px solid #ffeeba;
+    border-radius: 8px;
+    color: #664d03;
+}
 
-    .header h1 {
-        font-size: 2rem;
+.incidencias-section h2 {
+    color: #856404; /* Darker orange for heading */
+    margin-top: 0;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.incidencias-section ul {
+    list-style-type: disc;
+    margin-left: 20px;
+    padding: 0;
+}
+
+.incidencias-section li {
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.no-incidencias {
+    background-color: #d1e7dd; /* Light green for no incidents */
+    border: 1px solid #badbcc;
+    color: #0f5132;
+}
+.no-incidencias h2 {
+    color: #0f5132;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .agenda-table, .agenda-table tbody, .agenda-table tr, .agenda-table td {
+        display: block;
+    }
+    .agenda-table thead {
+        display: none; /* Hide header on small screens */
+    }
+    .agenda-table tr {
+        margin-bottom: 1rem;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    .agenda-table td {
+        border: none;
+        position: relative;
+        padding-left: 50%;
+        text-align: left;
+        white-space: normal;
+        word-break: break-all;
+    }
+    .agenda-table td:before {
+        content: attr(data-label);
+        position: absolute;
+        left: 6px;
+        width: 45%;
+        padding-right: 10px;
+        white-space: nowrap;
+        text-align: right;
+        font-weight: bold;
+        color: var(--primary-color);
     }
 }
