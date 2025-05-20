@@ -2,44 +2,51 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Agenda de Espacios</title>
+    <title th:text="'Agenda ' + ${agendaViewModel.nombreSala}"></title>
     <link rel="stylesheet" th:href="@{/css/styles.css}" />
 </head>
 <body>
 <div class="container">
     <h1 th:text="'📅 Agenda - ' + ${agendaViewModel.mesNombre} + ' ' + ${agendaViewModel.anyo}"></h1>
+    <h2 th:text="${agendaViewModel.nombreSala}"></h2>
 
-    <div th:each="salaEntry : ${agendaViewModel.agendaPorSala}">
-        <h2 th:text="${salaEntry.key}"></h2>
-        <div th:each="semana : ${agendaViewModel.semanas}">
-            <table class="agenda-table">
-                <thead>
-                <tr>
-                    <th th:text="'Semana ' + ${agendaViewModel.getNumeroSemana(semana[0])}"></th>
-                    <th th:each="dia : ${semana}"
-                        th:text="${dia.getDayOfMonth()} + ' (' + ${#strings.substring(agendaViewModel.traducirDia(agendaViewModel.getDiasSemana().get(dia.getDayOfWeek().getValue() - 1)), 0, 3)} + ')'"
-                        th:classappend="${dia.getMonthValue() != agendaViewModel.mesProcesar.getMonthValue() || dia.getYear() != agendaViewModel.mesProcesar.getYear() ? 'otro-mes' : ''}">
-                    </th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="hora : ${#numbers.sequence(0, 23)}">
-                    <td th:text="${hora < 24 ? T(java.lang.String).format('%02d', hora) + ':00-' + T(java.lang.String).format('%02d', hora + 1) + ':00' : '23:00-00:00'}"></td>
-                    <td th:each="dia : ${semana}"
-                        th:with="slotHora=${T(java.lang.String).format('%02d:00-%02d:00', hora, (hora + 1) % 24)}"
-                        th:classappend="${agendaViewModel.getEstado(salaEntry.key, dia, slotHora)}"
-                        th:text="${agendaViewModel.getActividad(salaEntry.key, dia, slotHora)}">
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
+    <div class="sala-navigation">
+        <span class="nav-label">Ver otras salas:</span>
+        <a th:each="sala : ${todasLasSalas}"
+           th:href="@{'/agenda/' + ${sala}}"
+           th:text="${sala}"
+           th:classappend="${sala == agendaViewModel.nombreSala ? 'active-sala-button' : 'sala-button'}">
+        </a>
     </div>
 
-    <div th:if="${agendaViewModel.incidencias.size() > 0}" class="incidences-section">
+    <div th:each="semana : ${agendaViewModel.semanas}">
+        <table class="agenda-table">
+            <thead>
+            <tr>
+                <th th:text="'Semana ' + ${agendaViewModel.getNumeroSemana(semana[0])}"></th>
+                <th th:each="dia : ${semana}"
+                    th:text="${dia.getDayOfMonth()} + ' (' + ${#strings.substring(agendaViewModel.traducirDia(agendaViewModel.getDiasSemana().get(dia.getDayOfWeek().getValue() - 1)), 0, 3)} + ')'"
+                    th:classappend="${dia.getMonthValue() != agendaViewModel.mesProcesar.getMonthValue() || dia.getYear() != agendaViewModel.mesProcesar.getYear() ? 'otro-mes' : ''}">
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="hora : ${#numbers.sequence(0, 23)}">
+                <td th:text="${hora < 23 ? T(java.lang.String).format('%02d', hora) + ':00-' + T(java.lang.String).format('%02d', hora + 1) + ':00' : '23:00-00:00'}"></td>
+                <td th:each="dia : ${semana}"
+                    th:with="slotHora=${T(java.lang.String).format('%02d:00-%02d:00', hora, (hora + 1) % 24)}"
+                    th:classappend="${agendaViewModel.getEstado(dia, slotHora)}"
+                    th:text="${agendaViewModel.getActividad(dia, slotHora)}">
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div th:if="${globalIncidencias != null and not #lists.isEmpty(globalIncidencias)}" class="incidences-section">
         <h3>Incidencias Detectadas:</h3>
         <ul>
-            <li th:each="incidencia : ${agendaViewModel.incidencias}" th:text="${incidencia}"></li>
+            <li th:each="incidencia : ${globalIncidencias}" th:text="${incidencia}"></li>
         </ul>
     </div>
 </div>

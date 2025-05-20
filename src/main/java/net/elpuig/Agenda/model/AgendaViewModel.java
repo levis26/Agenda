@@ -7,32 +7,37 @@ import java.time.temporal.WeekFields;
 import java.util.*;
 
 public class AgendaViewModel {
-    private Map<String, Map<LocalDate, Map<String, String>>> agendaPorSala;
-    private List<String> incidencias;
+    private String nombreSala; // Nuevo campo para el nombre de la sala
+    private Map<LocalDate, Map<String, String>> agendaPorDiaHora; // Agenda solo para esta sala
+    private List<String> incidencias; // Incidencias específicas de esta sala (opcional, o global)
     private YearMonth mesProcesar;
     private Map<String, String> traducciones;
 
-    public AgendaViewModel(YearMonth mesProcesar, Map<String, String> traducciones) {
+    // Constructor actualizado para incluir el nombre de la sala
+    public AgendaViewModel(String nombreSala, YearMonth mesProcesar, Map<String, String> traducciones) {
+        this.nombreSala = nombreSala;
         this.mesProcesar = mesProcesar;
         this.traducciones = traducciones;
-        this.agendaPorSala = new TreeMap<>(); // Using TreeMap for sorted sala names
-        this.incidencias = new ArrayList<>();
+        this.agendaPorDiaHora = new TreeMap<>(); // TreeMap for sorted dates
+        this.incidencias = new ArrayList<>(); // Inicializar para incidencias específicas de sala si se usan
     }
 
-    // Métodos para agregar datos
-    public void addReserva(String sala, LocalDate fecha, String hora, String actividad) {
-        agendaPorSala.computeIfAbsent(sala, k -> new TreeMap<>()) // TreeMap for dates
-                .computeIfAbsent(fecha, k -> new TreeMap<>())     // TreeMap for hours
+    // Métodos para agregar datos (solo para esta sala)
+    public void addReserva(LocalDate fecha, String hora, String actividad) {
+        agendaPorDiaHora.computeIfAbsent(fecha, k -> new TreeMap<>())
                 .put(hora, actividad);
     }
 
     public void addIncidencia(String incidencia) {
-        incidencias.add(incidencia);
+        this.incidencias.add(incidencia);
     }
-    public YearMonth getMesProcesar() {
-        return mesProcesar;
-    }
+
     // Getters para Thymeleaf
+
+    public String getNombreSala() { // Nuevo getter
+        return nombreSala;
+    }
+
     public String getMesNombre() {
         if (mesProcesar == null) {
             return "Mes no especificado";
@@ -42,6 +47,10 @@ public class AgendaViewModel {
 
     public int getAnyo() {
         return mesProcesar != null ? mesProcesar.getYear() : 0;
+    }
+
+    public YearMonth getMesProcesar() {
+        return mesProcesar;
     }
 
     public List<List<LocalDate>> getSemanas() {
@@ -71,21 +80,17 @@ public class AgendaViewModel {
         return Arrays.asList("L", "M", "C", "J", "V", "S", "G"); // 'G' for Sunday
     }
 
-
     public String traducirDia(String diaAbr) {
         return traducciones.getOrDefault("day." + diaAbr, diaAbr);
     }
 
-    // MODIFICACIÓN CLAVE: Este método ahora identifica "cerrado" usando la traducción
-    public String getEstado(String sala, LocalDate fecha, String hora) {
-        Map<LocalDate, Map<String, String>> fechas = agendaPorSala.get(sala);
-        if (fechas == null) return "libre";
+    public String getEstado(LocalDate fecha, String hora) { // Ya no necesita 'sala'
+        Map<String, String> horarios = agendaPorDiaHora.get(fecha);
+        if (horarios == null) return "libre";
 
-        Map<String, String> horarios = fechas.get(fecha);
-        if (horarios != null && horarios.containsKey(hora)) {
+        if (horarios.containsKey(hora)) {
             String actividad = horarios.get(hora);
-            // Compara la actividad con la traducción de "Tancat" (o "Cerrado")
-            if (actividad != null && actividad.equalsIgnoreCase(traducciones.getOrDefault("activity.closed", "Tancat"))) { // Usar una clave más genérica como "activity.closed"
+            if (actividad != null && actividad.equalsIgnoreCase(traducciones.getOrDefault("activity.closed", "Tancat"))) {
                 return "cerrado";
             }
             return "ocupado";
@@ -93,18 +98,14 @@ public class AgendaViewModel {
         return "libre";
     }
 
-    public String getActividad(String sala, LocalDate fecha, String hora) {
-        Map<LocalDate, Map<String, String>> fechas = agendaPorSala.get(sala);
-        if (fechas == null) return "";
-
-        Map<String, String> horarios = fechas.get(fecha);
+    public String getActividad(LocalDate fecha, String hora) { // Ya no necesita 'sala'
+        Map<String, String> horarios = agendaPorDiaHora.get(fecha);
         return (horarios != null && horarios.containsKey(hora)) ? horarios.get(hora) : "";
     }
 
-
     // Getters estándar
-    public Map<String, Map<LocalDate, Map<String, String>>> getAgendaPorSala() {
-        return agendaPorSala;
+    public Map<LocalDate, Map<String, String>> getAgendaPorDiaHora() {
+        return agendaPorDiaHora;
     }
 
     public List<String> getIncidencias() {
