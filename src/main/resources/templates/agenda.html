@@ -2,12 +2,29 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="'Agenda ' + ${agendaViewModel.nombreSala}"></title>
     <link rel="stylesheet" th:href="@{/css/styles.css}" />
 </head>
 <body>
 <div class="container">
-    <h1 th:text="'📅 Agenda - ' + ${agendaViewModel.mesNombre} + ' ' + ${agendaViewModel.anyo}"></h1>
+    <div class="header-with-buttons">
+        <h1 th:text="'📅 Agenda - ' + ${agendaViewModel.mesNombre} + ' ' + ${agendaViewModel.anyo}"></h1>
+        <div class="top-buttons">
+            <div th:if="${globalIncidencias != null and not #lists.isEmpty(globalIncidencias)}" class="incidences-toggle">
+                <button onclick="toggleIncidencias()">Ver Incidencias (<span th:text="${#lists.size(globalIncidencias)}"></span>)</button>
+                <div id="incidencesDropdown" class="incidences-content">
+                    <h3>Incidencias Detectadas:</h3>
+                    <ul>
+                        <li th:each="incidencia : ${globalIncidencias}" th:text="${incidencia}"></li>
+                    </ul>
+                </div>
+            </div>
+
+            <a th:href="@{/upload}" class="btn-volver">Volver al formulario</a>
+        </div>
+    </div>
+
     <h2 th:text="${agendaViewModel.nombreSala}"></h2>
 
     <div class="sala-navigation">
@@ -26,7 +43,7 @@
                 <th th:text="'Semana ' + ${agendaViewModel.getNumeroSemana(semana[0])}"></th>
                 <th th:each="dia : ${semana}"
                     th:text="${dia.getDayOfMonth()} + ' (' + ${#strings.substring(agendaViewModel.traducirDia(agendaViewModel.getDiasSemana().get(dia.getDayOfWeek().getValue() - 1)), 0, 3)} + ')'"
-                    th:classappend="${dia.getMonthValue() != agendaViewModel.mesProcesar.getMonthValue() || dia.getYear() != agendaViewModel.mesProcesar.getYear() ? 'otro-mes' : ''}">
+                    th:classappend="${dia.getMonthValue() != agendaViewModel.getMesProcesar().getMonthValue() || dia.getYear() != agendaViewModel.getMesProcesar().getYear() ? 'otro-mes' : ''}">
                 </th>
             </tr>
             </thead>
@@ -43,12 +60,27 @@
         </table>
     </div>
 
-    <div th:if="${globalIncidencias != null and not #lists.isEmpty(globalIncidencias)}" class="incidences-section">
-        <h3>Incidencias Detectadas:</h3>
-        <ul>
-            <li th:each="incidencia : ${globalIncidencias}" th:text="${incidencia}"></li>
-        </ul>
-    </div>
+    <script>
+        function toggleIncidencias() {
+            var dropdown = document.getElementById("incidencesDropdown");
+            dropdown.classList.toggle("show");
+        }
+
+        // Cerrar el dropdown si el usuario hace clic fuera de él
+        window.onclick = function(event) {
+            // Asegura que el clic no sea dentro del botón o del contenido del dropdown
+            if (!event.target.matches('.incidences-toggle button') &&
+                !event.target.closest('.incidences-content')) {
+                var dropdowns = document.getElementsByClassName("incidences-content");
+                for (var i = 0; i < dropdowns.length; i++) {
+                    var openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('show')) {
+                        openDropdown.classList.remove('show');
+                    }
+                }
+            }
+        }
+    </script>
 </div>
 </body>
 </html>

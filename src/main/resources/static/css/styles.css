@@ -1,223 +1,374 @@
-/* styles.css */
-:root {
-    --primary-color: #2c3e50;
-    --secondary-color: #3498db;
-    --background-color: #f8f9fa;
-    --success-color: #27ae60;
-    --error-color: #e74c3c;
-    --text-color: #2c3e50;
-    --font-primary: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
+/* Estilos generales */
 body {
-    font-family: var(--font-primary);
-    background-color: var(--background-color);
+    font-family: 'Segoe UI', Arial, sans-serif;
     margin: 0;
-    padding: 2rem;
-    min-height: 100vh;
-    color: var(--text-color);
+    padding: 20px;
+    background-color: #f8f9fa;
+    color: #343a40;
+    line-height: 1.6;
 }
 
 .container {
     max-width: 1200px;
-    margin: 0 auto;
-    background: white;
-    padding: 2.5rem;
+    margin: 20px auto;
+    background-color: #ffffff;
+    padding: 30px;
     border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    margin-bottom: 2rem; /* Add some space at the bottom */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 .header {
     text-align: center;
-    margin-bottom: 2rem;
+    margin-bottom: 30px;
 }
 
-.header h1 {
-    color: var(--primary-color);
-    font-size: 2.5rem;
-    margin-bottom: 0.5rem;
+h1, h2, h3 {
+    color: #0056b3;
+    text-align: center;
+    margin-bottom: 20px;
 }
 
+/* Nuevo contenedor para el título y los botones superiores */
+.header-with-buttons {
+    display: flex;
+    justify-content: space-between; /* Espacio entre el título y los botones */
+    align-items: flex-start; /* Alinea los ítems al inicio del contenedor (arriba) */
+    margin-bottom: 30px;
+    position: relative; /* Necesario para posicionar el dropdown de incidencias */
+}
+
+.header-with-buttons h1 {
+    margin: 0; /* Eliminar margen del h1 para mejor alineación */
+    text-align: left; /* Alinea el título a la izquierda */
+    flex-grow: 1; /* Permite que el título ocupe espacio disponible */
+    padding-right: 20px; /* Espacio para que no choque con los botones */
+}
+
+/* Contenedor para los botones superiores */
+.top-buttons {
+    display: flex;
+    gap: 15px; /* Espacio entre los botones superiores */
+    align-items: center; /* Centra los botones verticalmente */
+}
+
+/* Estilo para el botón "Volver" */
+.btn-volver {
+    background-color: #6c757d; /* Gris oscuro */
+    color: white;
+    padding: 10px 20px; /* Más padding para que sea más notable */
+    border: none;
+    border-radius: 6px; /* Bordes ligeramente redondeados */
+    cursor: pointer;
+    text-decoration: none; /* Quitar subrayado del enlace */
+    font-size: 0.95em;
+    font-weight: 500;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    display: inline-block; /* Para aplicar padding y centrar texto */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.btn-volver:hover {
+    background-color: #5a6268;
+    transform: translateY(-1px); /* Efecto ligero de elevación */
+}
+
+/* Estilos de formulario de subida */
 .upload-form {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 15px;
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 30px;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    background-color: #fdfdfd;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
 .form-group {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
 }
 
-label {
+.form-group label {
+    margin-bottom: 8px;
     font-weight: bold;
-    color: var(--primary-color);
+    color: #555;
+    font-size: 1.05em;
 }
 
 .file-input {
-    padding: 0.75rem;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    background-color: #f0f0f0;
+    padding: 10px;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    background-color: #fefefe;
     cursor: pointer;
-    transition: border-color 0.3s ease;
 }
 
-.file-input:hover {
-    border-color: var(--secondary-color);
+.file-input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    outline: none;
+}
+
+.file-name-display {
+    display: block;
+    margin-top: 8px;
+    font-size: 0.9em;
+    color: #6c757d;
+    background-color: #e9ecef;
+    padding: 8px 12px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
 }
 
 .form-text {
-    font-size: 0.85rem;
+    font-size: 0.85em;
     color: #666;
+    margin-top: 5px;
 }
 
 .btn-submit {
-    padding: 1rem 1.5rem;
-    background-color: var(--secondary-color);
+    background-color: #28a745; /* Verde para el botón de acción principal */
     color: white;
+    padding: 12px 25px;
     border: none;
-    border-radius: 8px;
-    font-size: 1.1rem;
+    border-radius: 6px;
     cursor: pointer;
+    font-size: 1.1em;
+    font-weight: 600;
     transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .btn-submit:hover {
-    background-color: #2980b9;
-    transform: translateY(-2px);
+    background-color: #218838;
+    transform: translateY(-1px);
 }
 
+/* Mensajes de error/info */
 .error-message {
-    background-color: #f8d7da;
-    color: var(--error-color);
-    padding: 1rem;
-    border-radius: 6px;
+    color: #dc3545; /* Rojo más fuerte */
+    background-color: #f8d7da; /* Fondo rojo claro */
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 25px;
     border: 1px solid #f5c6cb;
-    margin-bottom: 1.5rem;
+    font-weight: 500;
 }
 
-/* Agenda specific styles */
-h2 {
-    color: var(--primary-color);
-    margin-top: 2.5rem;
-    margin-bottom: 1.5rem;
-    border-bottom: 2px solid #eee;
-    padding-bottom: 0.5rem;
+.info-message {
+    color: #00529b;
+    background-color: #d1ecf1;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    border: 1px solid #bee5eb;
+    font-weight: 500;
 }
 
+/* Estilos para la navegación entre salas (mejorados y reorganizados) */
+.sala-navigation {
+    text-align: center;
+    margin-bottom: 40px; /* Más espacio debajo */
+    padding: 15px;
+    background-color: #e9f5ff; /* Azul muy claro */
+    border-radius: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.nav-label {
+    font-weight: bold;
+    color: #0056b3;
+    margin-right: 15px;
+    font-size: 1.05em;
+}
+
+.sala-button, .active-sala-button {
+    display: inline-block;
+    padding: 10px 20px;
+    border: 2px solid #007bff; /* Borde más pronunciado */
+    border-radius: 25px; /* Más píldora */
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95em;
+    color: #007bff;
+    background-color: #fff;
+    transition: all 0.3s ease;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.sala-button:hover {
+    background-color: #007bff;
+    color: white;
+    border-color: #0056b3;
+    transform: translateY(-2px); /* Efecto de elevación más notable */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
+}
+
+.active-sala-button {
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+    cursor: default;
+    border-color: #0056b3;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Estilos de la tabla de agenda */
 .agenda-table {
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 30px;
-    font-size: 0.9em;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.08);
+    border-radius: 8px; /* Bordes redondeados para la tabla */
+    overflow: hidden; /* Asegura que los bordes redondeados se apliquen correctamente */
 }
 
 .agenda-table th, .agenda-table td {
-    border: 1px solid #ddd;
-    padding: 8px;
+    border: 1px solid #e9ecef; /* Color de borde más suave */
+    padding: 10px; /* Más padding */
     text-align: center;
-    white-space: nowrap; /* Prevent text wrapping in cells */
-    overflow: hidden; /* Hide overflow */
-    text-overflow: ellipsis; /* Add ellipsis for overflowed text */
+    vertical-align: middle;
 }
 
 .agenda-table thead th {
-    background-color: #D6E7FA; /* Light blue header */
+    background-color: #343a40; /* Fondo oscuro para el encabezado */
+    color: white;
     font-weight: bold;
-    color: var(--primary-color);
+    padding: 12px 10px; /* Más padding en encabezado */
+    white-space: nowrap; /* Evita que los días se rompan */
 }
 
-.agenda-table tbody tr:nth-child(even) {
-    background-color: #f9f9f9; /* Zebra striping for rows */
+.agenda-table tbody td {
+    background-color: #fefefe; /* Fondo claro por defecto */
 }
 
-.hora {
-    background-color: #E8F1FE; /* Slightly different blue for hour column */
-    font-weight: bold;
-}
-
-/* Status colors */
+/* Clases de estado para las celdas */
 .libre {
-    background-color: #DFFAC4; /* Light green */
+    background-color: #e6ffe6; /* Verde pastel muy claro */
 }
+
 .ocupado {
-    background-color: #fbfccf; /* Light yellow */
+    background-color: #ffe6e6; /* Rojo pastel muy claro */
+    font-weight: 600;
+    color: #555;
 }
+
 .cerrado {
-    background-color: #b2aaaa; /* Grey/brownish for closed/blocked */
+    background-color: #e0e0e0; /* Gris claro */
+    font-style: italic;
+    color: #777;
 }
 
-/* Incidencias section */
-.incidencias-section {
-    margin-top: 3rem;
-    padding: 1.5rem;
-    background-color: #fff3cd; /* Light orange background */
-    border: 1px solid #ffeeba;
+.otro-mes {
+    background-color: #f2f2f2; /* Un color de fondo más tenue para días de otros meses */
+    color: #a0a0a0;
+}
+
+/* Sección de incidencias (desplegable) */
+.incidences-toggle {
+    position: relative; /* Cambiado a relative para alinearlo con flexbox, o absolute si es deseado */
+    /* top: 20px; /* Se maneja con flexbox ahora */
+    /* right: 20px; /* Se maneja con flexbox ahora */
+    z-index: 1000;
+}
+.incidences-toggle button {
+    background-color: #dc3545; /* Rojo para incidencias */
+    color: white;
+    padding: 10px 20px; /* Más padding */
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.95em;
+    font-weight: 500;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.incidences-toggle button:hover {
+    background-color: #c82333;
+    transform: translateY(-1px);
+}
+.incidences-content {
+    display: none; /* Oculto por defecto */
+    position: absolute;
+    /* top: 60px; /* Calculado automáticamente por position: absolute y right/top */
+    top: calc(100% + 10px); /* Ajusta la posición para que esté justo debajo del botón */
+    right: 0; /* Alineado a la derecha del botón toggle */
+    width: 350px; /* Un poco más ancho */
+    max-height: 400px;
+    overflow-y: auto;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
     border-radius: 8px;
-    color: #664d03;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2); /* Sombra más pronunciada */
+    padding: 20px; /* Más padding interno */
+    z-index: 999;
 }
-
-.incidencias-section h2 {
-    color: #856404; /* Darker orange for heading */
+.incidences-content.show {
+    display: block; /* Mostrar cuando tenga la clase 'show' */
+}
+.incidences-content h3 {
     margin-top: 0;
-    border-bottom: none;
-    padding-bottom: 0;
+    color: #dc3545;
+    text-align: left;
+    font-size: 1.2em;
+    border-bottom: 1px solid #eee; /* Línea de separación */
+    padding-bottom: 10px;
+    margin-bottom: 15px;
 }
-
-.incidencias-section ul {
+.incidences-content ul {
     list-style-type: disc;
-    margin-left: 20px;
-    padding: 0;
+    padding-left: 25px;
+    margin-bottom: 0;
+}
+.incidences-content li {
+    margin-bottom: 8px;
+    color: #333;
+    font-size: 0.95em;
 }
 
-.incidencias-section li {
-    margin-bottom: 0.5rem;
-    font-size: 0.95rem;
-}
-
-.no-incidencias {
-    background-color: #d1e7dd; /* Light green for no incidents */
-    border: 1px solid #badbcc;
-    color: #0f5132;
-}
-.no-incidencias h2 {
-    color: #0f5132;
-}
-
-/* Responsive adjustments */
+/* Media Queries para responsividad (opcional pero recomendado) */
 @media (max-width: 768px) {
-    .agenda-table, .agenda-table tbody, .agenda-table tr, .agenda-table td {
-        display: block;
+    .header-with-buttons {
+        flex-direction: column; /* Apila el título y los botones en pantallas pequeñas */
+        align-items: center;
+        text-align: center;
+        gap: 20px;
     }
-    .agenda-table thead {
-        display: none; /* Hide header on small screens */
+    .top-buttons {
+        flex-direction: column; /* Apila los botones superiores */
+        width: 100%;
+        gap: 10px;
     }
-    .agenda-table tr {
-        margin-bottom: 1rem;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        overflow: hidden;
+    .btn-volver, .incidences-toggle button {
+        width: 100%; /* Ocupa todo el ancho disponible */
+        text-align: center;
     }
-    .agenda-table td {
+    .incidences-toggle {
+        position: static; /* Restablece el posicionamiento */
+        width: 100%;
+    }
+    .incidences-content {
+        position: static; /* Restablece el posicionamiento */
+        width: 100%;
+        box-shadow: none;
         border: none;
-        position: relative;
-        padding-left: 50%;
-        text-align: left;
-        white-space: normal;
-        word-break: break-all;
+        margin-top: 15px;
+        padding: 0;
+        max-height: none;
     }
-    .agenda-table td:before {
-        content: attr(data-label);
-        position: absolute;
-        left: 6px;
-        width: 45%;
-        padding-right: 10px;
-        white-space: nowrap;
-        text-align: right;
-        font-weight: bold;
-        color: var(--primary-color);
+    .sala-navigation {
+        flex-direction: column;
+        gap: 8px;
+    }
+    .sala-button, .active-sala-button {
+        width: 100%;
     }
 }
