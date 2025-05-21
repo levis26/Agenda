@@ -15,12 +15,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.time.DayOfWeek;
+import jakarta.annotation.PostConstruct;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader; // <<-- ¡NUEVA IMPORTACIÓN!
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.ArrayList;
-import java.util.List;
-// import java.util.Map; // Importación eliminada, ya no es necesaria
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
 @Controller
 public class AgendaController {
@@ -33,20 +36,39 @@ public class AgendaController {
     @Autowired
     private DataLoader dataLoader;
 
-    private AgendaViewModel agendaViewModel; // Almacena el ViewModel para solicitudes GET posteriores
+    private Map<String, Map<String, String>> allTranslations = new HashMap<>();
 
-    @GetMapping("/") // Redirige la raíz al formulario de subida
-    public String redirectToUpload() {
-        return "redirect:/upload";
+    @PostConstruct
+    public void init() {
+        // Cargar todas las traducciones disponibles al iniciar la aplicación
+        loadTranslations("ESP", "internacional.ESP.properties");
+        loadTranslations("ENG", "internacional.ENG.properties");
+        loadTranslations("CAT", "internacional.CAT.properties");
+        loadTranslations("ZHO", "internacional.ZHO.properties");
+        loadTranslations("JPN", "internacional.JPN.properties");
+        logger.info("Traducciones de I18n cargadas en el controlador: {}", allTranslations.keySet());
     }
 
-    @GetMapping("/upload")
-    public String mostrarFormulario(Model model) {
-        // No re-inicializar DataLoader y AgendaProcessor aquí. Spring los gestiona.
-        // agendaViewModel = null; // Se reseteará en procesarArchivos si hay un nuevo procesamiento
+    private void loadTranslations(String langCode, String filename) {
+        try (InputStream input = getClass().getClassLoader().getResourceAsStream("i18n/" + filename)) {
+            if (input == null) {
+                logger.warn("No se pudo encontrar el archivo de traducciones: i18n/{}", filename);
+                return;
+            }
+            Properties prop = new Properties();
+            prop.load(new InputStreamReader(input, "UTF-8"));
+            Map<String, String> langMap = new HashMap<>();
+            prop.forEach((key, value) -> langMap.put(key.toString(), value.toString()));
+            allTranslations.put(langCode, langMap);
+            logger.info("Traducciones para {} cargadas exitosamente.", langCode);
+        } catch (IOException e) {
+            logger.error("Error al cargar traducciones para {}: {}", langCode, e.getMessage());
+        }
+    }
 
-        // Pasa los mensajes de error de la redirección
-        model.addAttribute("error", model.asMap().get("error"));
+
+    @GetMapping("/upload")
+    public String mostrarFormulario() {
         return "upload";
     }
 
@@ -55,108 +77,93 @@ public class AgendaController {
             @RequestParam("configFile") MultipartFile configFile,
             @RequestParam("peticionesFile") MultipartFile peticionesFile,
             RedirectAttributes redirectAttributes) {
-        logger.info("Iniciando procesamiento de archivos."); // Uso del logger
 
-        try {
-            // 1. Cargar configuración
-            dataLoader.loadConfig(configFile);
+        if (configFile.isEmpty() || peticionesFile.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "Por favor, selecciona ambos archivos.");
+            return "redirect:/upload";
+        }
 
-            // 2. Cargar peticiones. `loadPeticiones` ahora devuelve la lista de reservas
-            // y las incidencias de parseo se añaden directamente al DataLoader.
-            List<String> parsingIncidencias = new ArrayList<>();
-            List<Reserva> reservasInput = dataLoader.loadPeticiones(peticionesFile, parsingIncidencias);
+        try (InputStream configInputStream = configFile.getInputStream();
+             InputStream peticionesInputStream = peticionesFile.getInputStream()) {
 
-            // Añadir las incidencias de parseo a la lista combinada
-            List<String> allIncidencias = new ArrayList<>(parsingIncidencias);
+            dataLoader.cargarArchivos(configInputStream, peticionesInputStream, allTranslations);
 
+            // Get the current language's translations
+            String currentLang = dataLoader.getIdiomaSalida();
+            Map<String, String> currentTranslations = allTranslations.get(currentLang);
+            
+            // Call procesarReservas with both required parameters
+            agendaProcessor.procesarReservas(dataLoader.getReservas(), currentTranslations);
 
-            // 3. Procesar las reservas cargadas por DataLoader
-            agendaProcessor.procesarReservas(reservasInput, dataLoader.getTraducciones()); // Aquí pasas las traducciones
-
-            // Combina las incidencias de parseo y las de procesamiento
-            allIncidencias.addAll(agendaProcessor.getIncidencias());
-
-            redirectAttributes.addFlashAttribute("incidencias", allIncidencias); // Incidencias combinadas
-
-            // 4. Construir el ViewModel después de procesar todo
-            this.agendaViewModel = construirAgendaViewModel();
-
-            // Redirige al endpoint que muestra la agenda
             return "redirect:/agenda";
 
         } catch (Exception e) {
             logger.error("Error al procesar archivos: {}", e.getMessage(), e);
-            redirectAttributes.addFlashAttribute("error", "Error al procesar archivos: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "Error al procesar los archivos: " + e.getMessage());
+            if (!dataLoader.getIncidenciasCarga().isEmpty()) {
+                redirectAttributes.addFlashAttribute("incidenciasCarga", dataLoader.getIncidenciasCarga());
+            }
+            if (!agendaProcessor.getIncidencias().isEmpty()) {
+                redirectAttributes.addFlashAttribute("incidenciasProcesamiento", agendaProcessor.getIncidencias());
+            }
             return "redirect:/upload";
         }
     }
 
     @GetMapping("/agenda")
     public String mostrarAgenda(Model model) {
-        if (agendaViewModel == null) {
-            // Si el ViewModel es nulo, significa que no se procesaron archivos o hubo un error en el procesamiento.
-            // Redirige de nuevo a la página de subida con un mensaje de error.
-            model.addAttribute("error", "No se pudo cargar la agenda. Por favor, suba los archivos de configuración y peticiones de nuevo.");
+        if (dataLoader.getMesProcesar() == null || dataLoader.getIdiomaSalida() == null) {
+            model.addAttribute("error", "No se ha cargado la configuración de la agenda. Por favor, sube los archivos.");
             return "upload";
         }
+
+        AgendaViewModel agendaViewModel = construirAgendaViewModel();
         model.addAttribute("agendaViewModel", agendaViewModel);
-        // Las incidencias se añadirán automáticamente al modelo si vienen de un RedirectAttributes
+
+        if (model.asMap().containsKey("incidenciasProcesamiento")) {
+            model.addAttribute("incidenciasProcesamiento", model.asMap().get("incidenciasProcesamiento"));
+        }
+        if (model.asMap().containsKey("incidenciasCarga")) {
+            model.addAttribute("incidenciasCarga", model.asMap().get("incidenciasCarga"));
+        }
+
         return "agenda";
     }
 
-    // --- Método auxiliar para construir el ViewModel ---
     private AgendaViewModel construirAgendaViewModel() {
         YearMonth mesProcesar = dataLoader.getMesProcesar();
-        if (mesProcesar == null) {
-            // Esto no debería ocurrir si loadConfig se ejecutó correctamente
-            throw new IllegalStateException("mesProcesar no se ha inicializado. ¿Se cargó config.txt?");
+        Map<String, String> traduccionesSalida = dataLoader.getTraducciones();
+
+        if (mesProcesar == null || traduccionesSalida == null || traduccionesSalida.isEmpty()) {
+            throw new IllegalStateException("Datos de configuración o traducciones no inicializados. ¿Se cargó config.txt correctamente?");
         }
-        AgendaViewModel viewModel = new AgendaViewModel(mesProcesar, dataLoader.getTraducciones());
 
-        // Para cada reserva válida, marcar los slots en el ViewModel
+        AgendaViewModel viewModel = new AgendaViewModel(mesProcesar, traduccionesSalida);
+
         for (Reserva reserva : agendaProcessor.getReservasValidas()) {
-            // Iterar por cada día dentro del rango de la reserva
-            for (LocalDate fecha = reserva.getFechaInicio(); !fecha.isAfter(reserva.getFechaFin()); fecha = fecha.plusDays(1)) {
-                // Verificar si el día de la semana actual está incluido en la reserva
-                if (isDayIncluded(fecha.getDayOfWeek(), reserva.getDiasSemana())) { // Llamada al método corregido
-                    String[] horarios = reserva.getHorarios().split("_");
-                    for (String horarioStr : horarios) {
-                        try {
-                            String[] partesHorario = horarioStr.split("-");
-                            int inicioHora = Integer.parseInt(partesHorario[0]);
-                            int finHora = Integer.parseInt(partesHorario[1]);
-
-                            for (int h = inicioHora; h < finHora; h++) {
-                                String slot = String.format("%02d:00-%02d:00", h, h + 1);
-                                viewModel.addReserva(reserva.getSala(), fecha, slot, reserva.getNombreActividad());
+            LocalDate fechaActual = reserva.getFechaInicio();
+            while (!fechaActual.isAfter(reserva.getFechaFin())) {
+                if (fechaActual.getMonth() == mesProcesar.getMonth() && fechaActual.getYear() == mesProcesar.getYear()) {
+                    // Obtener el código de día interno (L, M, C, J, V, S, D) usando el nuevo método estático
+                    String diaCodigo = AgendaViewModel.getCodigoDia(fechaActual.getDayOfWeek()); // <<-- ¡USANDO NUEVO MÉTODO!
+                    if (reserva.getDiasSemana().contains(diaCodigo)) {
+                        String[] horas = reserva.getHorarios().split("_");
+                        for (String horario : horas) {
+                            String[] partes = horario.split("-");
+                            int inicio = Integer.parseInt(partes[0]);
+                            int fin = Integer.parseInt(partes[1]);
+                            for (int hora = inicio; hora < fin; hora++) {
+                                String horaStr = String.format("%02d:00-%02d:00", hora, hora + 1);
+                                viewModel.addReserva(reserva.getSala(), fechaActual, horaStr, reserva.getNombreActividad());
                             }
-                        } catch (NumberFormatException e) {
-                            // Este error debería ser capturado por DataLoader, pero como respaldo
-                            logger.warn("Formato de horario numérico inválido en reserva: {} - {}", horarioStr, e.getMessage());
                         }
                     }
                 }
+                fechaActual = fechaActual.plusDays(1);
             }
         }
-        // Añadir incidencias del procesador al ViewModel
+
         agendaProcessor.getIncidencias().forEach(viewModel::addIncidencia);
-
         return viewModel;
-    }
-
-    // Helper method: This should ideally be in AgendaProcessor or a utility class.
-    // Renombrado de isDayIncludedInReserva a isDayIncluded para consistencia.
-    private boolean isDayIncluded(DayOfWeek dayOfWeek, String diasSemanaCode) {
-        String dayCode = "";
-        switch (dayOfWeek) {
-            case MONDAY: dayCode = "L"; break;
-            case TUESDAY: dayCode = "M"; break;
-            case WEDNESDAY: dayCode = "C"; break;
-            case THURSDAY: dayCode = "J"; break;
-            case FRIDAY: dayCode = "V"; break;
-            case SATURDAY: dayCode = "S"; break;
-            case SUNDAY: dayCode = "G"; break; // 'G' for Sunday in Catalan (Diumenge)
-        }
-        return diasSemanaCode.contains(dayCode);
     }
 }
