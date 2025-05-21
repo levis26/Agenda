@@ -16,11 +16,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+
 import java.time.DayOfWeek; // No se usa en el controller, se puede quitar
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.*;
 import java.util.stream.Collectors; // Para collect
+
 
 @Controller
 public class AgendaController {
@@ -32,6 +34,7 @@ public class AgendaController {
 
     @Autowired
     private DataLoader dataLoader;
+
 
     // Mapa para almacenar AgendaViewModel por nombre de sala
     private Map<String, AgendaViewModel> agendaViewModelsPorSala;
@@ -55,6 +58,7 @@ public class AgendaController {
             @RequestParam("configFile") MultipartFile configFile,
             @RequestParam("peticionesFile") MultipartFile peticionesFile,
             RedirectAttributes redirectAttributes) {
+
         logger.info("Iniciando procesamiento de archivos.");
 
         try {
@@ -89,10 +93,17 @@ public class AgendaController {
 
         } catch (Exception e) {
             logger.error("Error al procesar archivos: {}", e.getMessage(), e);
-            redirectAttributes.addFlashAttribute("error", "Error al procesar archivos: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "Error al procesar los archivos: " + e.getMessage());
+            if (!dataLoader.getIncidenciasCarga().isEmpty()) {
+                redirectAttributes.addFlashAttribute("incidenciasCarga", dataLoader.getIncidenciasCarga());
+            }
+            if (!agendaProcessor.getIncidencias().isEmpty()) {
+                redirectAttributes.addFlashAttribute("incidenciasProcesamiento", agendaProcessor.getIncidencias());
+            }
             return "redirect:/upload";
         }
     }
+
 
     @GetMapping("/agenda/{nombreSala}")
     public String mostrarAgendaSala(@PathVariable String nombreSala, Model model, RedirectAttributes redirectAttributes) {
@@ -155,28 +166,16 @@ public class AgendaController {
                             } catch (NumberFormatException e) {
                                 // Este error debería ser capturado por DataLoader, pero como respaldo
                                 logger.warn("Formato de horario numérico inválido en reserva: {} - {}", horarioStr, e.getMessage());
+
                             }
                         }
                     }
                 }
+                fechaActual = fechaActual.plusDays(1);
             }
         }
-        return agendasPorSala;
-    }
 
-    // Helper method: This should ideally be in AgendaProcessor or a utility class.
-    // Renombrado de isDayIncludedInReserva a isDayIncluded para consistencia.
-    private boolean isDayIncluded(DayOfWeek dayOfWeek, String diasSemanaCode) {
-        String dayCode = "";
-        switch (dayOfWeek) {
-            case MONDAY: dayCode = "L"; break;
-            case TUESDAY: dayCode = "M"; break;
-            case WEDNESDAY: dayCode = "C"; break;
-            case THURSDAY: dayCode = "J"; break;
-            case FRIDAY: dayCode = "V"; break;
-            case SATURDAY: dayCode = "S"; break;
-            case SUNDAY: dayCode = "G"; break; // 'G' for Sunday in Catalan (Diumenge)
-        }
-        return diasSemanaCode.contains(dayCode);
+        return agendasPorSala;
+
     }
 }
