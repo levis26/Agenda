@@ -7,25 +7,35 @@
 </head>
 <body>
 <div class="container">
+    <div class="back-button-container">
+        <a th:href="@{/upload}" class="btn-back">Volver a Cargar Archivos</a>
+    </div>
+
     <h1 th:text="'📅 Agenda - ' + ${agendaViewModel.mesNombre} + ' ' + ${agendaViewModel.anyo}"></h1>
 
+    <div th:if="${agendaViewModel.agendaPorSala.isEmpty()}" class="no-data-message">
+        <p>No se encontraron datos para mostrar en la agenda. Por favor, revise los archivos de entrada y las incidencias.</p>
+    </div>
+
     <div th:each="salaEntry : ${agendaViewModel.agendaPorSala}">
-        <h2 th:text="${salaEntry.key}"></h2> <div th:each="semana : ${agendaViewModel.semanas}">
+        <h2 th:text="${salaEntry.key}"></h2>
+        <div th:each="semana : ${agendaViewModel.semanas}">
             <table class="agenda-table">
                 <thead>
                 <tr>
                     <th th:text="'Semana ' + ${agendaViewModel.getNumeroSemana(semana[0])}"></th>
-                    <th th:each="dia : ${semana}"
-                        th:text="${dia.getDayOfMonth()} + ' (' + ${#strings.substring(agendaViewModel.traducirDia(agendaViewModel.getDiasSemana().get(dia.getDayOfWeek().getValue() - 1)), 0, 3)} + ')'">
+                    <th th:each="dia : ${semana}">
+                        <span th:text="${dia.getDayOfMonth()}"></span>
+                        <span th:text="' (' + ${#strings.substring(agendaViewModel.traducirDia(agendaViewModel.getDiasSemana().get(dia.getDayOfWeek().getValue() - 1)), 0, 3)} + ')'"></span>
                     </th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:each="hora : ${#numbers.sequence(0, 23)}">
-                    <td th:text="${hora < 23 ? T(java.lang.String).format('%02d', hora) + ':00-' + T(java.lang.String).format('%02d', hora + 1) + ':00' : '23:00-00:00'}"></td>
+                    <td th:text="${T(java.lang.String).format('%02d', hora) + ':00-' + T(java.lang.String).format('%02d', (hora + 1) == 24 ? 24 : hora + 1) + ':00'}"></td>
                     <td th:each="dia : ${semana}"
-                        th:classappend="${agendaViewModel.getEstado(salaEntry.key, dia, T(java.lang.String).format('%02d:00-%02d:00', hora, (hora + 1) == 24 ? 0 : hora + 1))} ? 'ocupado' : 'libre'"
-                        th:text="${agendaViewModel.agendaPorSala.get(salaEntry.key).get(dia)?.get(T(java.lang.String).format('%02d:00-%02d:00', hora, (hora + 1) == 24 ? 0 : hora + 1))}">
+                        th:classappend="${agendaViewModel.getEstado(salaEntry.key, dia, T(java.lang.String).format('%02d:00-%02d:00', hora, (hora + 1) == 24 ? 0 : hora + 1))} == 'ocupado' ? 'ocupado' : (${agendaViewModel.getEstado(salaEntry.key, dia, T(java.lang.String).format('%02d:00-%02d:00', hora, (hora + 1) == 24 ? 0 : hora + 1))} == 'closed' ? 'closed' : 'libre')">
+                        <span th:text="${agendaViewModel.agendaPorSala.get(salaEntry.key).get(dia)?.get(T(java.lang.String).format('%02d:00-%02d:00', hora, (hora + 1) == 24 ? 0 : hora + 1))}"></span>
                     </td>
                 </tr>
                 </tbody>
@@ -39,6 +49,11 @@
             <li th:each="incidencia : ${agendaViewModel.incidencias}" th:text="${incidencia}"></li>
         </ul>
     </div>
+    <div th:if="${agendaViewModel.incidencias.size() == 0}" class="no-incidencias">
+        <h3>No se detectaron incidencias.</h3>
+        <p>¡La agenda se generó sin conflictos!</p>
+    </div>
+
 </div>
 </body>
 </html>

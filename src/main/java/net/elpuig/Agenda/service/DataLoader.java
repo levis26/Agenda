@@ -40,6 +40,13 @@ public class DataLoader {
         ABBREVIATION_MAP.put("SUN", "D");
         // Asegúrate de que si "ESP" o "CAT" tienen abreviaciones diferentes en el archivo de entrada,
         // también las incluyas aquí. Por el momento, asumimos LMCJVSGD para ellos.
+        ABBREVIATION_MAP.put("LUN", "L");
+        ABBREVIATION_MAP.put("MAR", "M");
+        ABBREVIATION_MAP.put("MER", "C");
+        ABBREVIATION_MAP.put("JEU", "J");
+        ABBREVIATION_MAP.put("VEN", "V");
+        ABBREVIATION_MAP.put("SAM", "S");
+        ABBREVIATION_MAP.put("DIM", "G");
     }
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
